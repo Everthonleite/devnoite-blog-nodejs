@@ -174,3 +174,61 @@ exports.deleteUser = (req, res, next) => {
             next(err);
         });
 };
+
+exports.addFavorite = (req, res, next) => {
+    const userId = req.userId;
+    const favoriteItemId = req.body.itemId;
+
+    User.findById(userId)
+        .then(user => {
+            if (!user) {
+                const error = new Error('Usuário não encontrado.');
+                error.statusCode = 404;
+                throw error;
+            }
+            
+            user.favorites.push(favoriteItemId);
+            return user.save();
+        })
+        .then(result => {
+            res.status(200).json({
+                message: 'Item adicionado aos favoritos com sucesso!',
+                result: result
+            });
+        })
+        .catch(err => {
+            if (!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
+        });
+};
+
+exports.removeFavorite = (req, res, next) => {
+    const userId = req.userId;
+    const favoriteItemId = req.params.itemId;
+
+    User.findById(userId)
+        .then(user => {
+            if (!user) {
+                const error = new Error('Usuário não encontrado.');
+                error.statusCode = 404;
+                throw error;
+            }
+            user.favorites.pull(favoriteItemId);
+            return user.save();
+        })
+        .then(result => {
+            res.status(200).json({
+                message: 'Item removido dos favoritos com sucesso!',
+                result: result
+            });
+        })
+        .catch(err => {
+            if (!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
+        });
+};
+
